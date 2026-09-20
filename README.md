@@ -1,59 +1,116 @@
 # Spring Fory JSON examples
 
-Runnable examples and tests for using [Fory JSON](https://fory.apache.org/docs/json)
-with Spring Boot 4 and Spring Framework 7 through
-[Spring Fory](https://github.com/chaokunyang/spring-fory).
+Two Spring Boot 4 applications that use [Fory JSON](https://fory.apache.org/docs/json)
+through [Spring Fory](https://github.com/chaokunyang/spring-fory): one with Spring MVC
+and one with WebFlux.
 
 The examples use weather data for Toronto and Vancouver, with temperatures in
 degrees Celsius. All values are sample data; no weather API or credentials are
 needed.
 
-## Run the tests
+## Get the project
 
 Install JDK 17 or later, then run:
 
 ```bash
 git clone https://github.com/chaokunyang/spring-fory-example.git
 cd spring-fory-example
-./mvnw test
 ```
 
-On Windows, use `mvnw.cmd test`. The Maven Wrapper downloads Maven on its first
-run, and Maven resolves the dependencies from Maven Central.
+On Windows, replace `./mvnw` with `mvnw.cmd`. The Maven Wrapper downloads Maven
+on its first run, and Maven resolves the dependencies from Maven Central.
 
-The suite runs 9 tests. To run just the reactive examples:
+## Run the MVC application
 
 ```bash
-./mvnw -Dtest=WeatherWebFluxTest test
+./mvnw -pl weather-mvc spring-boot:run
 ```
 
-## Find an example
+The application starts on port 8080. Open
+[http://localhost:8080/weather](http://localhost:8080/weather), or run this in
+another terminal:
 
-All example classes and tests are in
-[`src/test/java/example/weather`](src/test/java/example/weather).
+```bash
+curl http://localhost:8080/weather
+```
 
-| Test                                                                        | What it demonstrates                                                                                |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [DefaultWeatherTest](src/test/java/example/weather/DefaultWeatherTest.java) | MVC GET and POST with the starter's default Fory instance and the initial `temperature` field name. |
-| [WeatherMvcTest](src/test/java/example/weather/WeatherMvcTest.java)         | MVC GET and POST with `temperature_c` and a custom Fory bean that omits empty properties.           |
-| [WeatherWebFluxTest](src/test/java/example/weather/WeatherWebFluxTest.java) | Reactive GET and POST, plus two weather updates encoded as NDJSON.                                  |
-| [ForyJsonTest](src/test/java/example/weather/ForyJsonTest.java)             | Direct JSON round trips, omission of empty lists, and preservation of zero and false values.        |
+The response contains these values; JSON property order may differ:
 
-The [`initial`](src/test/java/example/weather/initial) package contains the first
-version of the weather model and controller. The main `example.weather` package
-contains the customized version used later in the articles.
+```json
+{ "city": "Toronto", "temperature_c": 25, "raining": false }
+```
 
-[`ForyMvcConfiguration`](src/test/java/example/weather/ForyMvcConfiguration.java)
-and
-[`ForyWebFluxConfiguration`](src/test/java/example/weather/ForyWebFluxConfiguration.java)
-show manual registration for applications using Spring Framework 7 without Boot.
-They are compiled with the examples; the HTTP tests exercise the Boot starter's
-automatic configuration.
+POST a weather object to see JSON deserialization and serialization together:
 
-Each HTTP test loads its own controller and configuration. MVC tests use MockMvc,
-and WebFlux tests bind WebTestClient to the application context. Running the suite
-does not start a server on port 8080. The example controllers live under
-`src/test/java` so both MVC and WebFlux versions can be tested in one project.
+```bash
+curl http://localhost:8080/weather \
+  -H 'Content-Type: application/json' \
+  --data '{"city":"Vancouver","temperature_c":18,"raining":true,"tips":["Take an umbrella"]}'
+```
+
+The endpoint returns the same weather values. Stop the application with Ctrl+C.
+
+## Run the WebFlux application
+
+From the repository root, run:
+
+```bash
+./mvnw -pl weather-webflux spring-boot:run
+```
+
+This application uses port 8081, so it can run alongside the MVC application.
+It has the same GET and POST `/weather` endpoints and a streaming endpoint:
+
+```bash
+curl http://localhost:8081/weather
+curl -N http://localhost:8081/weather/updates
+```
+
+The stream sends two sample updates, one second apart, then completes:
+
+```text
+{"city":"Toronto","temperature_c":25,"raining":false}
+{"city":"Toronto","temperature_c":18,"raining":true,"tips":["Take an umbrella"]}
+```
+
+Each line is a complete JSON value (NDJSON). Stop the application with Ctrl+C.
+
+## Find the application code
+
+| Application | Entry point                                                                                 | Source                                                                         |
+| ----------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| MVC         | [WeatherApplication](weather-mvc/src/main/java/example/weather/WeatherApplication.java)     | [weather-mvc/src/main/java](weather-mvc/src/main/java/example/weather)         |
+| WebFlux     | [WeatherApplication](weather-webflux/src/main/java/example/weather/WeatherApplication.java) | [weather-webflux/src/main/java](weather-webflux/src/main/java/example/weather) |
+
+Each module is a self-contained application with its own web starter, model,
+controller, and Fory configuration. Both use the customized article example:
+`temperature` is written as `temperature_c`, and empty `tips` are omitted.
+
+The Boot starter registers Fory automatically. The manual Spring 7 configurations
+from the articles remain as reference code in each module's
+`src/test/java/example/manual` package; they are not loaded by the Boot applications.
+
+## Build and test
+
+```bash
+./mvnw clean verify
+```
+
+This runs the tests and builds two executable jars. You can also start them without
+Maven:
+
+```bash
+java -jar weather-mvc/target/weather-mvc-1.0-SNAPSHOT.jar
+java -jar weather-webflux/target/weather-webflux-1.0-SNAPSHOT.jar
+```
+
+Run each command in a separate terminal. To run tests without packaging, use
+`./mvnw test`.
+
+The tests cover MVC requests, reactive requests and NDJSON output, JSON round
+trips, and empty-property handling. The HTTP tests load the real application
+configuration and use MockMvc or WebTestClient. Separate MVC test fixtures cover
+the initial article example before field renaming and custom configuration.
 
 ## Dependencies
 

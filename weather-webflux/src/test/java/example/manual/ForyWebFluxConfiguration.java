@@ -1,4 +1,4 @@
-package example.weather;
+package example.manual;
 
 import io.github.chaokunyang.springfory.ForyJsonDecoder;
 import io.github.chaokunyang.springfory.ForyJsonEncoder;

@@ -9,25 +9,17 @@ import java.util.List;
 import org.apache.fory.json.ForyJson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(
-    classes = WeatherMvcTest.Application.class,
+    classes = WeatherApplication.class,
     webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class WeatherMvcTest {
   @Autowired WebApplicationContext context;
   @Autowired ForyJson json;
-
-  @SpringBootConfiguration
-  @EnableAutoConfiguration
-  @Import({WeatherController.class, ForyJsonConfiguration.class})
-  static class Application {}
 
   @Test
   void currentWeather() throws Exception {

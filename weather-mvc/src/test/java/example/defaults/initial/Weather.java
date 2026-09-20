@@ -1,4 +1,4 @@
-package example.weather.initial;
+package example.defaults.initial;
 
 import java.util.List;
 

@@ -1,12 +1,12 @@
-package example.weather;
+package example.defaults;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import example.weather.initial.Weather;
-import example.weather.initial.WeatherController;
+import example.defaults.initial.Weather;
+import example.defaults.initial.WeatherController;
 import io.github.chaokunyang.springfory.ForyJsonHttpMessageConverter;
 import java.util.List;
 import org.apache.fory.json.ForyJson;

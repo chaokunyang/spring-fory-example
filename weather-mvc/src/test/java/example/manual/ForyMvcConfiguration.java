@@ -1,4 +1,4 @@
-package example.weather;
+package example.manual;
 
 import io.github.chaokunyang.springfory.ForyJsonHttpMessageConverter;
 import org.apache.fory.json.ForyJson;

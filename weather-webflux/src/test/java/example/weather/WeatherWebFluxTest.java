@@ -7,26 +7,17 @@ import java.util.List;
 import org.apache.fory.json.ForyJson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(
-    classes = WeatherWebFluxTest.Application.class,
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-    properties = "spring.main.web-application-type=reactive")
+    classes = WeatherApplication.class,
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class WeatherWebFluxTest {
   @Autowired ApplicationContext context;
   @Autowired ForyJson json;
-
-  @SpringBootConfiguration
-  @EnableAutoConfiguration
-  @Import({ReactiveWeatherController.class, ForyJsonConfiguration.class})
-  static class Application {}
 
   private WebTestClient client() {
     return WebTestClient.bindToApplicationContext(context).configureClient()
